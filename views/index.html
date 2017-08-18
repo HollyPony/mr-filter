@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gitlab - Merge Requests Filter</title>
+  <script src="https://unpkg.com/vue"></script>
+</head>
+<body>
+  <div id="app">
+    <h1>Pending Gitlab Merge Requests</h1>
+    <projects></projects>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      components: {
+        Projects: {
+          name: 'projects',
+          template: `
+            <div class="projects">
+              <ul>
+                <li v-for="project in projects">
+                  <h3><a :href="project.web_url" target="_blank">{{project.path_with_namespace}}</a></h3>
+                  <merge-requests :merge-requests="project.mergeRequests"></merge-requests>
+                </li>
+              </ul>
+            </div>`,
+          data () {
+            return {
+              projects: []
+            }
+          },
+          created () {
+            this.fetchPosts()
+          },
+          methods: {
+            fetchPosts () {
+              fetch('list').then(res => res.json())
+                .then(projects => {
+                  this.projects = projects
+                })
+            }
+          },
+          components: {
+            MergeRequests: {
+              name: 'merge-requests',
+              props: ['mergeRequests'],
+              template: `
+                <ul>
+                    <li v-for="mergeRequest in mergeRequests">
+                      - <a :href="mergeRequest.web_url">{{mergeRequest.title}}</a>
+                    </li>
+                </ul>`
+            }
+          }
+        }
+      }
+    })
+  </script>
+
+  <style>
+    #app {
+      font-family: 'Avenir', Helvetica, Arial, sans-serif;
+      text-align: center;
+      color: #2c3e50;
+      margin-top: 20px;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      margin: 0 10px;
+    }
+    li > a {
+      color: #308f68;
+    }
+  </style>
+</body>
+</html>
