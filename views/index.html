@@ -20,7 +20,7 @@
             <div class="projects">
               <ul>
                 <li v-for="project in projects">
-                  <h3><a :href="project.web_url" target="_blank">{{project.path_with_namespace}}</a></h3>
+                  <h3><a :href="project.web_url" target="_blank">{{project.path_with_namespace || project.id}}</a></h3>
                   <merge-requests :merge-requests="project.mergeRequests"></merge-requests>
                 </li>
               </ul>
@@ -35,10 +35,15 @@
           },
           methods: {
             fetchPosts () {
-              fetch('list').then(res => res.json())
-                .then(projects => {
-                  this.projects = projects
-                })
+              fetch('list')
+                .then(res => res.json())
+                .then(projects => this.projects = projects)
+                .then(() => Promise.all(this.projects.map((project, index) => fetch('project/' + project.id)
+                  .then(res => res.json())
+                  .then(projectReceived => {
+                    this.projects.splice(index, 1, Object.assign({}, project, projectReceived))
+                  })
+                )))
             }
           },
           components: {
@@ -47,9 +52,9 @@
               props: ['mergeRequests'],
               template: `
                 <ul>
-                    <li v-for="mergeRequest in mergeRequests">
-                      - <a :href="mergeRequest.web_url">{{mergeRequest.title}}</a>
-                    </li>
+                  <li v-for="mergeRequest in mergeRequests">
+                    - <a :href="mergeRequest.web_url">{{mergeRequest.title}}</a>
+                  </li>
                 </ul>`
             }
           }

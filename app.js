@@ -12,6 +12,13 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views/index.html'))
 })
 
+app.get('/project/:id', (req, res) => {
+  res.set('Content-Type', 'application/javascript')
+  api.getProjectById(req.params.id).then((project) => {
+    res.send(project)
+  })
+})
+
 app.get('/list', (req, res) => {
   res.set('Content-Type', 'application/javascript')
   api.listMergeRequests().then((projects) => {
@@ -21,8 +28,8 @@ app.get('/list', (req, res) => {
 
 app.listen(serverPort, (err) => {
   if (err) {
-    return console.log('something bad happened', err)
+    return console.log('Something bad happened', err)
   }
 
-  console.log(`server is listening on ${serverPort}`)
+  console.log(`Server is listening on ${serverPort}`)
 })

@@ -5,30 +5,22 @@ const gitlabUrl = config.get('gitlabUrl')
 const gitlabKey = config.get('gitlabKey')
 
 module.exports = {
+  getProjectById: (projectId) => {
+    return fetch(`${gitlabUrl}/api/v4/projects/${projectId}?private_token=${gitlabKey}`)
+      .then(res => res.json())
+  },
+
   listMergeRequests: () => {
-    const projectList = () => {
-      return fetch(`${gitlabUrl}/api/v4/projects?private_token=${gitlabKey}`)
-        .then(res => res.json())
-    }
+    return fetch(`${gitlabUrl}/api/v4/merge_requests?private_token=${gitlabKey}&state=opened&scope=all`)
+      .then(res => res.json())
+      .then(mergeRequests => mergeRequests.filter(mergeRequest => !mergeRequest.work_in_progress))
+      .then(mergeRequests => Promise.all(Object.values(mergeRequests.reduce((accumulator, mergeRequest) => {
+        if (!accumulator[mergeRequest.project_id]) {
+          accumulator[mergeRequest.project_id] = {id: mergeRequest.project_id, mergeRequests: []}
+        }
 
-    const getMRbyProject = (projectId, params) => {
-      return fetch(`${gitlabUrl}/api/v4/projects/${projectId}/merge_requests?private_token=${gitlabKey}&state=opened`)
-        .then(res => res.json())
-        .then(mergeRequests => mergeRequests.filter(mergeRequest => !mergeRequest.work_in_progress))
-    }
-
-    const loopOnProjects = (projects) => {
-      return Promise
-        .all(projects
-          .map(project => getMRbyProject(project.id)
-            .then((mergeRequests) => {
-              project.mergeRequests = mergeRequests
-              return project
-            })))
-        .then((projects) => projects.filter((project) => project.mergeRequests.length > 0))
-    }
-
-    return projectList()
-      .then(loopOnProjects)
+        accumulator[mergeRequest.project_id].mergeRequests.push(mergeRequest)
+        return accumulator
+      }, {}))))
   }
 }
