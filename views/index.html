@@ -18,10 +18,16 @@
           name: 'projects',
           template: `
             <div class="projects">
+              <h2>Waiting for approvals / merge</h2>
               <ul>
                 <li v-for="project in projects">
-                  <h3><a :href="project.web_url" target="_blank">{{project.path_with_namespace || project.id}}</a></h3>
-                  <merge-requests :merge-requests="project.mergeRequests"></merge-requests>
+                  <merge-requests :wip="false" v-bind:project="project"></merge-requests>
+                </li>
+              </ul>
+              <h2>In progress</h2>
+              <ul>
+                <li v-for="project in projects">
+                  <merge-requests :wip="true" v-bind:project="project"></merge-requests>
                 </li>
               </ul>
             </div>`,
@@ -49,13 +55,24 @@
           components: {
             MergeRequests: {
               name: 'merge-requests',
-              props: ['mergeRequests'],
+              props: ['project', 'wip'],
               template: `
-                <ul>
-                  <li v-for="mergeRequest in mergeRequests">
-                    - <a :href="mergeRequest.web_url">{{mergeRequest.title}}</a>
-                  </li>
-                </ul>`
+                <div v-if="hasContent">
+                  <h3><a :href="project.web_url" target="_blank">{{project.path_with_namespace || project.id}}</a></h3>
+                  <ul>
+                    <li v-for="mergeRequest in mergeRequests">
+                      - <a :href="mergeRequest.web_url">{{mergeRequest.title}}</a>
+                    </li>
+                  </ul>
+                </div>`,
+              computed: {
+                hasContent: function() {
+                  return this.mergeRequests && this.mergeRequests.length > 0
+                },
+                mergeRequests: function() {
+                  return this.project.mergeRequests.filter(mergeRequest => mergeRequest.work_in_progress === this.wip)
+                }
+              }
             }
           }
         }

@@ -13,7 +13,6 @@ module.exports = {
   listMergeRequests: () => {
     return fetch(`${gitlabUrl}/api/v4/merge_requests?private_token=${gitlabKey}&state=opened&scope=all`)
       .then(res => res.json())
-      .then(mergeRequests => mergeRequests.filter(mergeRequest => !mergeRequest.work_in_progress))
       .then(mergeRequests => Promise.all(Object.values(mergeRequests.reduce((accumulator, mergeRequest) => {
         if (!accumulator[mergeRequest.project_id]) {
           accumulator[mergeRequest.project_id] = {id: mergeRequest.project_id, mergeRequests: []}
