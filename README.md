@@ -2,6 +2,8 @@
 
 A little basic webapp to list merge requests without the WIP status.
 
+Based on 9.5 Api
+
 ## Usage
 
 There is 3 environment variables to set before:
