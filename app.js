@@ -22,7 +22,6 @@ app.get('/project/:id', (req, res) => {
 app.get('/approvals/:id/:iid', (req, res) => {
   res.set('Content-Type', 'application/javascript')
   api.getApprovals(req.params.id, req.params.iid).then((approvals) => {
-    console.log()
     res.send(approvals)
   })
 })
