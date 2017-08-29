@@ -62,6 +62,7 @@
                   <ul>
                     <li v-for="mergeRequest in mergeRequests">
                       - <a :href="mergeRequest.web_url">{{mergeRequest.title}}</a>
+                      <span v-if="mergeRequest.left"> - {{mergeRequest.left}}</span>
                     </li>
                   </ul>
                 </div>`,
@@ -70,6 +71,13 @@
                   return this.mergeRequests && this.mergeRequests.length > 0
                 },
                 mergeRequests: function() {
+                  this.project.mergeRequests.forEach(mergeRequest => {
+                    if (!mergeRequest.work_in_progress) {
+                      fetch(`approvals/${this.project.id}/${mergeRequest.iid}`)
+                        .then(res => res.json())
+                        .then(res => mergeRequest.left = res.left)
+                    }
+                  })
                   return this.project.mergeRequests.filter(mergeRequest => mergeRequest.work_in_progress === this.wip)
                 }
               }

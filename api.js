@@ -10,6 +10,12 @@ module.exports = {
       .then(res => res.json())
   },
 
+  getApprovals: (projectId, mergeRequestIid) => {
+    return fetch(`${gitlabUrl}/api/v4/projects/${projectId}/merge_requests/${mergeRequestIid}/approvals?private_token=${gitlabKey}`)
+      .then(res => res.json())
+      .then(res => ({left: res.approvals_left}))
+  },
+
   listMergeRequests: () => {
     return fetch(`${gitlabUrl}/api/v4/merge_requests?private_token=${gitlabKey}&state=opened&scope=all`)
       .then(res => res.json())
