@@ -46,9 +46,13 @@
                 .then(projects => this.projects = projects)
                 .then(() => Promise.all(this.projects.map((project, index) => fetch('project/' + project.id)
                   .then(res => res.json())
-                  .then(projectReceived => {
-                    this.projects.splice(index, 1, Object.assign({}, project, projectReceived))
-                  })
+                  .then(projectReceived => this.projects.splice(index, 1, Object.assign({}, project, projectReceived)))
+                  .then(() => project.mergeRequests.forEach(mergeRequest => {
+                    if (!mergeRequest.work_in_progress)
+                      fetch(`approvals/${project.id}/${mergeRequest.iid}`)
+                        .then(res => res.json())
+                        .then(res => mergeRequest.approvalsLeft = res.left)
+                  }))
                 )))
             }
           },
@@ -61,8 +65,7 @@
                   <h3><a :href="project.web_url" target="_blank">{{project.path_with_namespace || project.id}}</a></h3>
                   <ul>
                     <li v-for="mergeRequest in mergeRequests">
-                      - <a :href="mergeRequest.web_url">{{mergeRequest.title}}</a>
-                      <span v-if="mergeRequest.left"> - {{mergeRequest.left}}</span>
+                      - <a :href="mergeRequest.web_url">{{mergeRequest.title}}</a><span v-if="!wip"> - Approvals remaining: {{mergeRequest.approvalsLeft}}</span>
                     </li>
                   </ul>
                 </div>`,
@@ -71,13 +74,6 @@
                   return this.mergeRequests && this.mergeRequests.length > 0
                 },
                 mergeRequests: function() {
-                  this.project.mergeRequests.forEach(mergeRequest => {
-                    if (!mergeRequest.work_in_progress) {
-                      fetch(`approvals/${this.project.id}/${mergeRequest.iid}`)
-                        .then(res => res.json())
-                        .then(res => mergeRequest.left = res.left)
-                    }
-                  })
                   return this.project.mergeRequests.filter(mergeRequest => mergeRequest.work_in_progress === this.wip)
                 }
               }

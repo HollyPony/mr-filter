@@ -24,7 +24,7 @@ module.exports = {
           accumulator[mergeRequest.project_id] = {id: mergeRequest.project_id, mergeRequests: []}
         }
 
-        accumulator[mergeRequest.project_id].mergeRequests.push(mergeRequest)
+        accumulator[mergeRequest.project_id].mergeRequests.push(Object.assign(mergeRequest, {approvalsLeft: 0}))
         return accumulator
       }, {}))))
   }
