@@ -28,7 +28,7 @@ module.exports = {
 
   listMergeRequests: function () {
     return this.fetchAllPages(`${gitlabUrl}/api/v4/merge_requests?private_token=${gitlabKey}&state=opened&scope=all`)
-      .then(ress => Promise.all(ress.reduce((acc, res) => acc.concat(res.json()), []))) // Convert page responses to json responses
+      .then(ress => Promise.all(ress.map(res => res.json()))) // Convert page responses to json responses
       .then(mergeRequests => Promise.all(Object.values(mergeRequests
         .reduce((acc, res) => acc.concat(res), []) // Flat mergeRequests
         .reduce((accumulator, mergeRequest) => {
