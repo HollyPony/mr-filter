@@ -65,7 +65,11 @@
                   <h3><a :href="project.web_url" target="_blank">{{project.path_with_namespace || project.id}}</a></h3>
                   <ul>
                     <li v-for="mergeRequest in mergeRequests">
-                      - <a :href="mergeRequest.web_url">{{mergeRequest.title}}</a><span v-if="!wip"> - Approvals remaining: {{mergeRequest.approvalsLeft}}</span>
+                      - <a :href="mergeRequest.web_url">{{mergeRequest.title}}</a>
+                      <span v-if="!wip">
+                        <span v-if="mergeRequest.merge_status === 'cannot_be_merged'"> - &#9888;</span>
+                        <span v-if="mergeRequest.approvalsLeft !== null">- Approvals remaining: {{mergeRequest.approvalsLeft}}</span>
+                      </span>
                     </li>
                   </ul>
                 </div>`,

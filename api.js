@@ -43,7 +43,7 @@ module.exports = {
           accumulator[mergeRequest.project_id] = {id: mergeRequest.project_id, mergeRequests: []}
         }
 
-        accumulator[mergeRequest.project_id].mergeRequests.push(Object.assign(mergeRequest, {approvalsLeft: 0}))
+        accumulator[mergeRequest.project_id].mergeRequests.push(Object.assign(mergeRequest, {approvalsLeft: null}))
         return accumulator
       }, {}))
       .then(mergeRequestsByProject => Object.values(mergeRequestsByProject)) // Transform Object into grouped array by project
