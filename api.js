@@ -29,15 +29,15 @@ module.exports = {
   listMergeRequests: function () {
     return this.fetchAllPages(`${gitlabUrl}/api/v4/merge_requests?private_token=${gitlabKey}&state=opened&scope=all`)
       .then(ress => Promise.all(ress.map(res => res.json()))) // Convert page responses to json responses
-      .then(mergeRequests => Promise.all(Object.values(mergeRequests
-        .reduce((acc, res) => acc.concat(res), []) // Flat mergeRequests
-        .reduce((accumulator, mergeRequest) => {
-          if (!accumulator[mergeRequest.project_id]) {
-            accumulator[mergeRequest.project_id] = {id: mergeRequest.project_id, mergeRequests: []}
-          }
+      .then(mergeRequests => mergeRequests.reduce((acc, res) => acc.concat(res), [])) // Flat mergeRequests
+      .then(mergeRequests => mergeRequests.reduce((accumulator, mergeRequest) => { // Group mergeRequests by project
+        if (!accumulator[mergeRequest.project_id]) {
+          accumulator[mergeRequest.project_id] = {id: mergeRequest.project_id, mergeRequests: []}
+        }
 
-          accumulator[mergeRequest.project_id].mergeRequests.push(Object.assign(mergeRequest, {approvalsLeft: 0}))
-          return accumulator
-        }, {}))))
+        accumulator[mergeRequest.project_id].mergeRequests.push(Object.assign(mergeRequest, {approvalsLeft: 0}))
+        return accumulator
+      }, {}))
+      .then(mergeRequestsByProject => Object.values(mergeRequestsByProject)) // Transform Object into grouped array by project
   }
 }
