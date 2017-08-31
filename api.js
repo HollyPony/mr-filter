@@ -1,4 +1,5 @@
 const url = require('url')
+const querystring = require('querystring')
 const path = require('path')
 const config = require('config')
 const fetch = require('node-fetch')
@@ -8,11 +9,10 @@ const gitlabKey = config.get('gitlabKey')
 
 module.exports = {
   callApi: function (dir, params = {}) {
-    params = [`?private_token=${gitlabKey}`].concat(Object.entries(params).map(([key, value]) => {
-      return `${key}=${value}`
-    })).join('&')
+    params['private_token'] = gitlabKey
+    params = querystring.stringify(params)
 
-    return fetch(url.resolve(gitlabUrl, (path.join('api/v4', dir) + params)))
+    return fetch(url.resolve(gitlabUrl, (path.join('api/v4', dir) + '?' + params)))
   },
 
   getProjectById: function (projectId) {
