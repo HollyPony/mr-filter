@@ -5,13 +5,20 @@ const gitlabUrl = config.get('gitlabUrl')
 const gitlabKey = config.get('gitlabKey')
 
 module.exports = {
-  getProjectById: (projectId) => {
-    return fetch(`${gitlabUrl}/api/v4/projects/${projectId}?private_token=${gitlabKey}`)
+  callApi: function (path, params = {}) {
+    params = [`?private_token=${gitlabKey}`].concat(Object.entries(params).map(([key, value]) => {
+      return `${key}=${value}`
+    })).join('&')
+    return `${gitlabUrl}/api/v4/${path}${params}`
+  },
+
+  getProjectById: function (projectId) {
+    return fetch(this.callApi(`/projects/${projectId}`))
       .then(res => res.json())
   },
 
-  getApprovals: (projectId, mergeRequestIid) => {
-    return fetch(`${gitlabUrl}/api/v4/projects/${projectId}/merge_requests/${mergeRequestIid}/approvals?private_token=${gitlabKey}`)
+  getApprovals: function (projectId, mergeRequestIid) {
+    return fetch(this.callApi(`projects/${projectId}/merge_requests/${mergeRequestIid}/approvals`))
       .then(res => res.json())
       .then(res => ({left: res.approvals_left}))
   },
@@ -27,7 +34,7 @@ module.exports = {
   },
 
   listMergeRequests: function () {
-    return this.fetchAllPages(`${gitlabUrl}/api/v4/merge_requests?private_token=${gitlabKey}&state=opened&scope=all`)
+    return this.fetchAllPages(this.callApi('merge_requests', {state: 'opened', scope: 'all'}))
       .then(ress => Promise.all(ress.map(res => res.json()))) // Convert page responses to json responses
       .then(mergeRequests => mergeRequests.reduce((acc, res) => acc.concat(res), [])) // Flat mergeRequests
       .then(mergeRequests => mergeRequests.reduce((accumulator, mergeRequest) => { // Group mergeRequests by project
