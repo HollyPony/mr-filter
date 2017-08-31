@@ -3,8 +3,8 @@ const path = require('path')
 const config = require('config')
 const fetch = require('node-fetch')
 
-const gitlabUrl = config.get('gitlabUrl')
-const gitlabKey = config.get('gitlabKey')
+const gitlabUrl = config.get('gitlab.url')
+const gitlabKey = config.get('gitlab.userKey')
 
 module.exports = {
   callApi: function (dir, params = {}) {
