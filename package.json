@@ -6,6 +6,10 @@
     "start": "node ./app",
     "test": "standard"
   },
+  "engines" : {
+    "node": "^8.4.0",
+    "npm": "^5.3.0"
+  },
   "dependencies": {
     "config": "^1.26.2",
     "express": "^4.15.4",
