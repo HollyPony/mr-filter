@@ -1,5 +1,7 @@
 # Gitlab Merge Request filter
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/HollyPony/mr-filter.svg)](https://greenkeeper.io/)
+
 A little basic webapp to list merge requests without the WIP status.
 
 Based on 9.5 Api
